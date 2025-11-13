@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario de Adviento - Mi Amor ❤️</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .day-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+        }
+
+        .day-card.locked {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .day-card.opened {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .day-number {
+            font-size: 3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .day-label {
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lock-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+            border: none;
+            background: none;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-day {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-message {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: #555;
+            white-space: pre-line;
+        }
+
+        .hearts {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .calendar-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+            
+            .day-number {
+                font-size: 2em;
+            }
+            
+            .modal-content {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✨ Nuestro Calendario de Adviento ✨</h1>
+            <p class="subtitle">Un detalle bobo para cada día de Diciembre</p>
+        </header>
+
+        <div class="calendar-grid" id="calendar"></div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div class="modal-day" id="modalDay"></div>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="hearts">💕</div>
+        </div>
+    </div>
+
+    <script>
+        // AQUÍ PERSONALIZAS TUS MENSAJES PARA CADA DÍA
+        const messages = {
+            1: {
+                title: "Carta de Amor",
+                message: "Hoy quiero decirte lo mucho que significas para mí. Desde que llegaste a mi vida, todo tiene más color. Eres mi persona favorita y cada día a tu lado es un regalo. Te amo más de lo que las palabras pueden expresar. "
+            },
+            2: {
+                title: "Razones Ilustradas",
+                message: "Hice dibujos (sé que no soy artista XD) de 5 momentos especiales juntos. Lo tierno no está en la perfección del dibujo, sino en que pensé en ti mientras los hacía. Te los mostraré hoy."
+            },
+            3: {
+                title: "Nuestro Spotify Wrapped Personalizado",
+                message: "Creé nuestra versión personal:\n\n📊 Top 1 momento del mes: Cuando [escribe tu momento favorito]\n💬 Frase más repetida: 'Te amo'\n🤗 Mejor abrazo: Todos, pero especialmente [describe uno especial]\n😂 Risas compartidas: Infinitas\n💕 Nivel de amor: Over 9000\n\nNuestra playlist del corazón está siempre en repeat. 🎵"
+            },
+            4: {
+                title: "Poema para Ti",
+                message: "En tus ojos encontré mi hogar,\nen tu sonrisa, mi despertar.\nEres la luz que ilumina mi día,\nmi amor eterno, mi alegría.\nCada momento a tu lado es especial,\neres mi sueño hecho real.\nNo soy poeta, pero contigo,\ntodo lo hermoso tiene sentido. ✨"
+            },
+            5: {
+                title: "Adivinanzas de Amor",
+                message: "Adivina, adivinanza:\n\n1. ¿Qué es lo primero que veo y me hace sonreír cada mañana? (Tu mensaje de buenos días)\n\n2. ¿Qué sonido es mi favorito en todo el mundo? (Tu risa)\n\n3. ¿Qué persona hace que todo problema sea más pequeño? (Tú)\n\n4. ¿Dónde me siento más en casa? (En tus brazos)\n\n5. ¿Cuál es mi plan perfecto para cualquier día? (Estar contigo)\n\n¿Adivinaste todas? 🤔💕"
+            },
+            6: {
+                title: "Tour Virtual de Nuestros Sueños",
+                message: "Hice una presentación con 8 lugares del mundo que quiero visitar CONTIGO algún día:\n\n🗼 París: Para robarte un beso bajo la Torre Eiffel\n🗾 Japón: Ver los cerezos juntos\n🏛️ Italia: Comer pizza en Roma y gelato en cada esquina\n🏖️ Maldivas: Solo tú, yo y el mar\n\nNo importa cuándo, pero sé que llegaremos juntos. Te enviaré la presentación completa. ✈️"
+            },
+            7: {
+                title: "Noche de Películas",
+                message: "Preparé la lista perfecta para nuestra noche de pelis:\n\n🎬 Película 1: [Tu elección romántica]\n🎬 Película 2: [Tu elección comedia]\n🎬 Película 3: [Favorita de ambos]\n\nIncluye: palomitas caseras, cobijas suaves, abrazos ilimitados y pausas para besarnos. Esta noche es para nosotros. 🍿❤️"
+            },
+            8: {
+                title: "Caja de Recuerdos Digital",
+                message: "Creé una carpeta especial con:\n\n📱 Screenshots de conversaciones que me hicieron sonreír\n😂 Memes que solo nosotros entendemos\n💬 Mensajes lindos que guardé\n📸 Fotos random que atesoro\n💕 Todo lo que me hace feliz de nuestra relación\n\nEs como un museo de nuestros mejores momentos digitales. Te la compartiré hoy. 📦"
+            },
+            9: {
+                title: "Playlist Personalizada",
+                message: "Creé una playlist con canciones que me recuerdan a ti y a nosotros:\n\n🎵 Canciones que sonaban cuando nos conocimos\n🎵 Las que te dedico mentalmente\n🎵 Nuestras favoritas para cantar juntos\n🎵 Las que me hacen pensar en ti\n\nCada canción cuenta parte de nuestra historia. Link: [Envíaselo por WhatsApp] 🎧💕"
+            },
+            10: {
+                title: "20 Razones Por las Que Te Amo",
+                message: "1. Tu sonrisa ilumina hasta mis días grises\n2. Tu risa es mi canción favorita\n3. Me haces ser una mejor persona\n4. Eres mi mejor amiga y mi amor\n5. La forma en que me miras hace sentir especial\n6. Tus abrazos son mi lugar seguro\n7. Entiendas mis silencios\n8. Celebras mis logros como si fueran tuyos\n9. Me apoyas en mis locuras\n10. Tu forma de ser auténtica\n\n...y 10 razones más que te diré en persona cuando nos veamos. 💝"
+            },
+            11: {
+                title: "Rosa de Origami",
+                message: "Vi tutoriales en YouTube y después de 7 intentos fallidos, ¡lo logré! Hice una rosa de papel para ti. Tal vez no sea perfecta, tal vez esté un poco arrugada, pero está hecha con mucho amor y paciencia. Cada pliegue lleva un pensamiento sobre ti. La recibirás hoy. 🌹"
+            },
+            12: {
+                title: "Álbum Digital de Nosotros",
+                message: "Creé un collage especial con nuestras mejores fotos:\n\n📸 Nuestras selfies más tontas\n📸 Momentos espontáneos\n📸 Esa foto donde salimos perfectos\n📸 Las que nadie más vio\n\nCada imagen cuenta una historia de amor, de risas, de nosotros. Te lo enviaré para que lo guardes y lo veas cuando quieras recordar lo felices que somos juntos. 💕"
+            },
+            13: {
+                title: "Receta del Amor Perfecto",
+                message: "👨‍🍳 INGREDIENTES:\n\n- 2 tazas de risas compartidas\n- 1 kg de abrazos sinceros\n- 3 litros de conversaciones hasta la madrugada\n- 500g de besos espontáneos\n- Una pizca de locuras juntos\n- Todo el amor del mundo\n- Paciencia al gusto\n- Comprensión infinita\n\n📝 PREPARACIÓN:\nMezclar todo con cuidado, dejar reposar en el tiempo, y disfrutar cada día por el resto de nuestras vidas. Rinde: Para siempre. 💕"
+            },
+            14: {
+                title: "Tu Día Perfecto - Tú Mandas",
+                message: "Hoy es COMPLETAMENTE tuyo. Tú decides todo:\n\n👑 ¿Qué hacemos? Tú eliges\n🍕 ¿Qué comemos? Lo que quieras\n📺 ¿Qué vemos? Tu elección\n⏰ ¿A qué hora? Cuando digas\n\nSolo tengo una regla: hacerte feliz. Este día es para consentirte y que sepas lo importante que eres para mí. Tú eres la reina hoy (y siempre). 💝"
+            },
+            15: {
+                title: "Cupón de Masaje VIP",
+                message: "🎟️ CUPÓN VÁLIDO POR:\n\n- Un masaje relajante de 30 minutos\n- Con aceites imaginarios premium\n- Música relajante de fondo\n- Todo mi amor y dedicación reales\n- Presión a tu gusto\n- Conversación opcional incluida\n\nVálido: Cuando tú quieras\nLugar: Donde estemos\nPrecio: 1 abrazo de pago\n\nSolo reserva tu cita conmigo y me encargo del resto. 💆‍♀️💕"
+            },
+            16: {
+                title: "20 Preguntas Sobre Nosotros",
+                message: "Preparé un juego para poner a prueba cuánto nos conocemos:\n\n❓ ¿Cuál fue nuestra primera conversación?\n❓ ¿Qué comida asocias conmigo?\n❓ ¿Mi película favorita?\n❓ ¿Qué te dije la primera vez que te vi?\n❓ ¿Nuestro chiste interno favorito?\n\nY 15 preguntas más... ¿Lista para jugar? El premio para quien gane: Más amor (si es que eso es posible). 🎮💕"
+            },
+            17: {
+                title: "Karaoke Casero",
+                message: "¡Noche de karaoke en casa! Preparé una lista de 5 canciones para cantar juntos:\n\n🎤 Una romántica para dedicarte\n🎤 Una que nos gusta a ambos\n🎤 Una que siempre quisiste cantar\n🎤 Una para reírnos de lo mal que cantamos\n🎤 Nuestra canción\n\nNo importa si desafinamos o si los vecinos se quejan. Lo importante es divertirnos, reírnos y crear recuerdos. Tu voz siempre será música para mis oídos. 🎵❤️"
+            },
+            18: {
+                title: "Cena Casera Especial",
+                message: "Esta noche cocinaré tu comida favorita. Sé que no soy chef, pero le pondré todo mi amor (literal, ese es el ingrediente secreto).\n\n🍝 Menú: [Tu comida favorita]\n🕯️ Ambiente: Velas y música suave\n💕 Compañía: La mejor (nosotros)\n\nSi algo sale mal, recuerda: lo importante es la intención. Pero prometo esforzarme al máximo para que todo salga delicioso. ¡Prepárate para ser consentida! 👨‍🍳"
+            },
+            19: {
+                title: "Reto de las 5 Fotos",
+                message: "Hoy haremos el reto de las 5 fotos en diferentes lugares:\n\n📸 Foto 1: Donde nos conozcamos\n📸 Foto 2: Tu lugar favorito\n📸 Foto 3: Algún lugar nuevo para nosotros\n📸 Foto 4: Donde el atardecer se vea bonito\n📸 Foto 5: Donde TÚ elijas\n\nCada foto será un recuerdo nuevo de este día especial. ¡Prepara tu mejor sonrisa! Y si quieres, tomamos 50 más. 📷💕"
+            },
+            20: {
+                title: "Carta al Futuro - Nosotros",
+                message: "Escribí sobre cómo te imagino a mi lado en el futuro:\n\n📅 EN 1 AÑO: Celebrando más momentos, riendo de los mismos chistes, amándote aún más.\n\n📅 EN 5 AÑOS: Construyendo sueños juntos, apoyándonos en todo, siendo equipo.\n\n📅 EN 10 AÑOS: Mirando atrás y sonriendo por todo lo vivido, planeando más aventuras.\n\nEn todas esas versiones del futuro hay una constante: tú, conmigo, sonriendo. Porque no imagino mi vida sin ti. 💌⏰"
+            },
+            21: {
+                title: "Frasco de la Felicidad",
+                message: "Escribí 30 papelitos con:\n\n💕 Cosas que amo de ti\n💕 Momentos favoritos juntos\n💕 Razones por las que me haces sonreír\n💕 Recuerdos que atesoro\n💕 Mensajes para días difíciles\n\nLos puse todos en un frasco especial para ti. Cuando necesites un motivo para sonreír, cuando te sientas triste, o simplemente cuando quieras: abre el frasco y lee uno. Te lo daré hoy. 🏺✨"
+            },
+            22: {
+                title: "Sesión de Fotos Casera",
+                message: "¡Hoy seremos modelos por un día! Sesión de fotos con el celular:\n\n📱 Fotos tontas que nos hagan reír\n📱 Fotos serias para presumir\n📱 Fotos románticas para recordar\n📱 Fotos espontáneas y naturales\n📱 La foto perfecta para poner de fondo de pantalla\n\nSin fotógrafo profesional, sin estudio, solo nosotros dos creando recuerdos hermosos. Al final del día tendremos decenas de fotos nuevas de este momento. 📸💕"
+            },
+            23: {
+                title: "Carta del Yo del Pasado",
+                message: "Escribí esta carta como si fuera yo hace un mes, antes de que estuviéramos juntos:\n\n'Querido yo del futuro:\n\nNo sé qué me espera, pero algo me dice que algo hermoso está por llegar. Si estás leyendo esto es porque esa persona especial está en tu vida ahora. Cuídala, hazla reír, ábrele tu corazón.\n\nSé que serás feliz. Disfruta cada momento, porque estos días son los que recordarás para siempre.\n\nCon amor, el yo del pasado que apenas imaginaba esta felicidad.'\n\nY tenía razón. Eres lo mejor que me ha pasado. 💌"
+            },
+            24: {
+                title: "Cápsula del Tiempo Digital",
+                message: "Creé algo muy especial: una cápsula del tiempo digital que abriremos juntos en exactamente 1 año.\n\nDentro incluí:\n\n⏰ Fotos de nosotros HOY\n⏰ Mensajes describiendo cómo me siento ahora\n⏰ Predicciones sobre nuestro futuro\n⏰ Una playlist de canciones que escuchamos este mes\n⏰ Screenshots de conversaciones actuales\n⏰ Mis esperanzas y sueños sobre nosotros\n\nEl 24 de diciembre del próximo año, abriremos esto juntos y veremos todo lo que habremos vivido, crecido y amado. Será hermoso. 💕⏰"
+            }
+        };
+
+        // Función para verificar si un día está disponible
+        function isDayAvailable(day) {
+            const today = new Date();
+            const currentDay = today.getDate();
+            const currentMonth = today.getMonth() + 1; // Enero es 0
+            
+            // Solo disponible en diciembre
+            if (currentMonth !== 12) {
+                return false;
+            }
+            
+            return day <= currentDay;
+        }
+
+        // Función para verificar si un día ya fue abierto
+        function isDayOpened(day) {
+            const opened = localStorage.getItem(`day_${day}_opened`);
+            return opened === 'true';
+        }
+
+        // Función para marcar un día como abierto
+        function markDayAsOpened(day) {
+            localStorage.setItem(`day_${day}_opened`, 'true');
+        }
+
+        // Crear el calendario
+        function createCalendar() {
+            const calendar = document.getElementById('calendar');
+            
+            for (let day = 1; day <= 24; day++) {
+                const card = document.createElement('div');
+                card.className = 'day-card';
+                
+                const isAvailable = isDayAvailable(day);
+                const isOpened = isDayOpened(day);
+                
+                if (!isAvailable) {
+                    card.classList.add('locked');
+                    card.innerHTML = `
+                        <div class="lock-icon">🔒</div>
+                        <div class="day-number">${day}</div>
+                        <div class="day-label">Diciembre</div>
+                    `;
+                } else if (isOpened) {
+                    card.classList.add('opened');
+                    card.innerHTML = `
+                        <div class="lock-icon">✓</div>
+                        <div class="day-number">${day}</div>
+                        <div class="day-label">Abierto</div>
+                    `;
+                    card.onclick = () => openDay(day);
+                } else {
+                    card.innerHTML = `
+                        <div class="lock-icon">🎁</div>
+                        <div class="day-number">${day}</div>
+                        <div class="day-label">¡Ábrelo!</div>
+                    `;
+                    card.onclick = () => openDay(day);
+                }
+                
+                calendar.appendChild(card);
+            }
+        }
+
+        // Abrir un día
+        function openDay(day) {
+            const modal = document.getElementById('modal');
+            const modalDay = document.getElementById('modalDay');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            
+            const message = messages[day];
+            
+            modalDay.textContent = `Día ${day} de Diciembre`;
+            modalTitle.textContent = message.title;
+            modalMessage.textContent = message.message;
+            
+            modal.classList.add('active');
+            
+            // Marcar como abierto
+            markDayAsOpened(day);
+            
+            // Actualizar la tarjeta
+            setTimeout(() => {
+                const cards = document.querySelectorAll('.day-card');
+                const targetCard = cards[day - 1];
+                targetCard.classList.add('opened');
+                targetCard.querySelector('.lock-icon').textContent = '✓';
+                targetCard.querySelector('.day-label').textContent = 'Abierto';
+            }, 500);
+        }
+
+        // Cerrar modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Inicializar el calendario
+        createCalendar();
+    </script>
+</body>
+</html>
