@@ -202,7 +202,7 @@
     <div class="container">
         <header>
             <h1>✨ Nuestro Calendario de Adviento ✨</h1>
-            <p class="subtitle">Un detalle bobo para cada día de Diciembre</p>
+            <p class="subtitle">Un detalle especial para cada día de diciembre</p>
         </header>
 
         <div class="calendar-grid" id="calendar"></div>
@@ -223,11 +223,11 @@
         const messages = {
             1: {
                 title: "Carta de Amor",
-                message: "Hoy quiero decirte lo mucho que significas para mí. Desde que llegaste a mi vida, todo tiene más color. Eres mi persona favorita y cada día a tu lado es un regalo. Te amo más de lo que las palabras pueden expresar. "
+                message: "¡Hola mi amor! 💕\n\nHoy comienza nuestro calendario de adviento y tengo algo especial para ti.\n\nSe está descargando automáticamente un archivo con una carta que escribí especialmente para este día.\n\n¡Ábrelo y léelo con calma! Tiene todo lo que quiero decirte en este primer día de diciembre.\n\nTe amo muchísimo 💌"
             },
             2: {
                 title: "Razones Ilustradas",
-                message: "Hice dibujos (sé que no soy artista XD) de 5 momentos especiales juntos. Lo tierno no está en la perfección del dibujo, sino en que pensé en ti mientras los hacía. Te los mostraré hoy."
+                message: "Hice dibujos (sé que no soy artista jaja) de 10 momentos especiales juntos. Cada garabato tiene una historia: nuestro primer abrazo, cuando me hiciste reír hasta llorar, esa vez que nos perdimos y no nos importó... Lo tierno no está en la perfección del dibujo, sino en que pensé en ti mientras los hacía. Te los mostraré hoy. 🎨"
             },
             3: {
                 title: "Nuestro Spotify Wrapped Personalizado",
@@ -398,6 +398,11 @@
             
             modal.classList.add('active');
             
+            // Si es el día 1, descargar el archivo
+            if (day === 1) {
+                downloadDay1File();
+            }
+            
             // Marcar como abierto
             markDayAsOpened(day);
             
@@ -409,6 +414,34 @@
                 targetCard.querySelector('.lock-icon').textContent = '✓';
                 targetCard.querySelector('.day-label').textContent = 'Abierto';
             }, 500);
+        }
+
+        // Función para descargar el archivo del Día 1
+        function downloadDay1File() {
+            const content = `Día 1
+
+El tiempo vuela, parece ayer cuando te entregué el calendario de adviento, y claro como te bloqueé todos los días para que no fueras a ver qué te espera en cada uno, espero que estés emocionada por ver cada una de las cosas que hice. Pero hoy por fin es primero de diciembre. Siendo este nuestro primer diciembre juntos, me siento un poquito ridículo de lo nervioso que estoy escribiendo esto, como si me estuvieran evaluando por cada palabra (que igual sí, porque tú lees todo con lupa AJSDJASDA), pero bueno, aquí vamos.
+
+A lo largo del mes vas a encontrar cosas que hice con más cariño que técnica (la verdad ( y nadie habla de esto )), pero siento que eso también es un poco el punto: que veas exactamente cómo me derrito cuando pienso en ti. No sé por qué me da la impresión de que este diciembre va a ser muy bonito para nosotros, aunque estemos lejos, aunque yo esté acá escribiéndote mientras intento no pensar en lo mucho que me gustaría darte esto en persona.
+
+Igual este Día 1 es simple a propósito. No quería empezar con algo enorme, sino con algo que te haga sonreír apenas abras el calendario (SI ES QUE SI SE PUEDE ABRIR, si ves algo raro dime para arreglarlo xfa). Algo que te recuerde que sí, eres mi persona favorita, incluso cuando estoy haciendo el ridículo intentando pensar en cómo sorprenderte cada día. Algo como: "Hey, aquí estoy, sigo aquí, y voy a estar aquí todo el mes, molestándote con detalles bobos y cosas que me recuerdan a ti."
+
+Prometo que hice esto con todo el cariño del mundo (y con varias personas de reddit que me ayudaron XD la doy toda todo el tiempo).
+
+Te amo mucho
+un beso
+y un abrazo`;
+
+            // Crear el archivo y descargarlo
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Dia_1_Carta_de_Amor.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
         }
 
         // Cerrar modal
