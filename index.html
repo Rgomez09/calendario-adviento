@@ -227,7 +227,7 @@
             },
             2: {
                 title: "Razones Ilustradas",
-                message: "Hice dibujos (sé que no soy artista jaja) de 5 momentos especiales juntos. Cada garabato tiene una historia: nuestro primer abrazo, cuando me hiciste reír hasta llorar, esa vez que nos perdimos y no nos importó... Lo tierno no está en la perfección del dibujo, sino en que pensé en ti mientras los hacía. Te los mostraré hoy. 🎨"
+                message: "Hice dibujos (sé que no soy artista jaja) de 10 momentos especiales juntos. Cada garabato tiene una historia: nuestro primer abrazo, cuando me hiciste reír hasta llorar, esa vez que nos perdimos y no nos importó... Lo tierno no está en la perfección del dibujo, sino en que pensé en ti mientras los hacía. Te los mostraré hoy. 🎨"
             },
             3: {
                 title: "Nuestro Spotify Wrapped Personalizado",
@@ -235,7 +235,7 @@
             },
             4: {
                 title: "Poema para Ti",
-                message: "En tus ojos encontré mi hogar,\nen tu sonrisa, mi despertar.\nEres la luz que ilumina mi día,\nmi amor eterno, mi alegría.\nCada momento a tu lado es especial,\neres mi sueño hecho real.\nNo soy poeta, pero contigo,\ntodo lo hermoso tiene sentido. ✨"
+                message: "¡Hola mi amor! 💕\n\nHoy te escribí un poema. Bueno, intenté escribir un poema (ya sabes que no soy poeta jaja).\n\nSe está descargando automáticamente un archivo con el poema completo.\n\n¡Léelo y no te burles mucho de mí! Lo escribí pensando en ti. ✨💌"
             },
             5: {
                 title: "Adivinanzas de Amor",
@@ -403,6 +403,11 @@
                 downloadDay1File();
             }
             
+            // Si es el día 4, descargar el poema
+            if (day === 4) {
+                downloadDay4File();
+            }
+            
             // Marcar como abierto
             markDayAsOpened(day);
             
@@ -438,6 +443,34 @@ y un abrazo`;
             const link = document.createElement('a');
             link.href = url;
             link.download = 'Dia_1_Carta_de_Amor.txt';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Función para descargar el poema del Día 4
+        function downloadDay4File() {
+            const content = `Poema para Ti - Día 4
+
+No sé en qué momento pasó, pero un día me di cuenta de que pensar en ti se volvió mi actividad principal (como si fuera tarea obligatoria, pero bonita).
+
+Y es raro, porque no planeé nada solo apareciste, así como cuando abro un archivo y funciona sin errores, milagrosamente.
+
+A veces creo que debería calmarme, pero luego hablas, o ríes, o dices cualquier bobada, y se me olvida respirar otra vez.
+
+No sé escribir poemas, pero sé que te amo, y siento que eso debería contar como rima.
+
+
+Con todo mi amor,
+Tu novio que intenta ser poeta 💕`;
+
+            // Crear el archivo y descargarlo
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Dia_4_Poema_para_Ti.txt';
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
